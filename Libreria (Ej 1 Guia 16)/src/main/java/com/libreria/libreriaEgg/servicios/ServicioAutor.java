@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ServicioAutor {
@@ -19,12 +21,13 @@ public class ServicioAutor {
     @Autowired
     private RepositorioAutor repositorioAutor;
 
-    public List<Autor> buscarTodos() {
-        List<Autor> autores = repositorioAutor.findAll();
-        return autores;
+    @Transactional(readOnly = true)
+    public List<Autor> mostrarTodos() {
+        return repositorioAutor.findAll();
     }
 
-    public void crear(String nombre) throws ErrorServicio {
+    @Transactional(propagation = Propagation.NESTED)
+    public void guardar(String nombre) throws ErrorServicio {
         validar(nombre);
         Autor autor = new Autor();
         autor.setNombre(nombre);
@@ -32,6 +35,7 @@ public class ServicioAutor {
         repositorioAutor.save(autor);
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     public void modificar(String id, String nombre) throws ErrorServicio {
         validar(nombre);
         Optional<Autor> respuesta = repositorioAutor.findById(id);
@@ -44,6 +48,7 @@ public class ServicioAutor {
         }
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     public void deshabilitar(String id) throws ErrorServicio {
         Optional<Autor> respuesta = repositorioAutor.findById(id);
 
@@ -56,6 +61,7 @@ public class ServicioAutor {
         }
     }
 
+    @Transactional(propagation = Propagation.NESTED)
     public void habilitar(String id) throws ErrorServicio {
         Optional<Autor> respuesta = repositorioAutor.findById(id);
 
