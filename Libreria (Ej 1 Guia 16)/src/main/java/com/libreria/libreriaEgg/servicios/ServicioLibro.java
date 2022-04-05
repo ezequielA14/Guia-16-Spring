@@ -16,11 +16,6 @@ public class ServicioLibro {
     @Autowired
     private RepositorioLibro repositorioLibro;
 
-    @Transactional(readOnly = true)
-    public List<Libro> mostrarTodos() {
-        return repositorioLibro.findAll();
-    }
-    
     @Transactional(propagation = Propagation.NESTED)
     public void guardar(Long isbn, String titulo, Integer anio, Integer ejemplares) throws ErrorServicio {
         validar(isbn, titulo, anio, ejemplares, 0);
@@ -53,7 +48,7 @@ public class ServicioLibro {
         }
 
     }
-    
+
     @Transactional(propagation = Propagation.NESTED)
     public void deshabilitar(String id) throws ErrorServicio {
         Optional<Libro> respuesta = repositorioLibro.findById(id);
@@ -79,7 +74,8 @@ public class ServicioLibro {
             throw new ErrorServicio("No se encontro el libro solicitado.");
         }
     }
-    
+
+    /// No lleva @Transactional
     public void validar(Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados) throws ErrorServicio {
         if (isbn == null || isbn.toString().length() != 8) {
             throw new ErrorServicio("El número de isbn no es válido");
@@ -92,14 +88,43 @@ public class ServicioLibro {
         if (anio == null || anio.toString().length() > 4) {
             throw new ErrorServicio("El año no puede sobrepasar los 4 digitos");
         }
-        
+
         if (ejemplares == null) {
             throw new ErrorServicio("La cantidad de ejemplares no es valida");
         }
-        
+
         if (ejemplares < ejemplaresPrestados) {
             throw new ErrorServicio("La cantidad de ejemplares no puede ser menor que los prestados");
         }
     }
-    
+
+    @Transactional(readOnly = true)
+    public List<Libro> mostrarTodos() {
+        return repositorioLibro.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Libro> mostrarPorTitulo(String titulo) {
+        return repositorioLibro.buscarPorTitulo(titulo);
+    }
+
+    @Transactional(readOnly = true)
+    public Libro mostrarPorIsbn(Integer isbn) {
+        return repositorioLibro.buscarPorIsbn(isbn);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Libro> mostrarPorAnio(Integer anio) {
+        return repositorioLibro.buscarPorAnio(anio);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Libro> mostrarPorAutor(String autor) {
+        return repositorioLibro.buscarPorAutor(autor);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Libro> mostrarPorEditorial(String editorial) {
+        return repositorioLibro.buscarPorEditorial(editorial);
+    }
 }

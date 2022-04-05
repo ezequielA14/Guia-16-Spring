@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.libreria.libreriaEgg.servicios;
 
 import com.libreria.libreriaEgg.entidades.Autor;
@@ -20,11 +15,6 @@ public class ServicioAutor {
 
     @Autowired
     private RepositorioAutor repositorioAutor;
-
-    @Transactional(readOnly = true)
-    public List<Autor> mostrarTodos() {
-        return repositorioAutor.findAll();
-    }
 
     @Transactional(propagation = Propagation.NESTED)
     public void guardar(String nombre) throws ErrorServicio {
@@ -74,10 +64,20 @@ public class ServicioAutor {
         }
     }
 
+    /// No lleva @Transactional
     public void validar(String nombre) throws ErrorServicio {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new ErrorServicio("El nombre no puede estar vacio.");
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<Autor> mostrarTodos() {
+        return repositorioAutor.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Autor> mostrarPorNombre(String nombre) {
+        return repositorioAutor.buscarPorNombre(nombre);
+    }
 }

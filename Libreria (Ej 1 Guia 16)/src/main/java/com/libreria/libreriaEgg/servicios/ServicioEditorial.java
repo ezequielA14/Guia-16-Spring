@@ -14,11 +14,6 @@ public class ServicioEditorial {
     @Autowired
     private RepositorioEditorial repositorioEditorial;
 
-    @Transactional(readOnly = true)
-    public List<Editorial> mostrarTodos() {
-        return repositorioEditorial.findAll();
-    }
-    
     @Transactional(propagation = Propagation.NESTED)
     public void guardar(String nombre) throws ErrorServicio {
         validar(nombre);
@@ -67,11 +62,20 @@ public class ServicioEditorial {
         }
     }
 
-    @Transactional(propagation = Propagation.NESTED)
+    /// No lleva @Transactional
     public void validar(String nombre) throws ErrorServicio {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new ErrorServicio("El nombre no puede estar vacio.");
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<Editorial> mostrarTodos() {
+        return repositorioEditorial.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Editorial> mostrarPorNombre(String nombre) {
+        return repositorioEditorial.buscarPorNombre(nombre);
+    }
 }
