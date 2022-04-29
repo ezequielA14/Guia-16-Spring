@@ -1,6 +1,6 @@
 package com.libreria.libreriaEgg.servicios;
 
-import com.libreria.libreriaEgg.entidades.Libro;
+import com.libreria.libreriaEgg.entidades.*;
 import com.libreria.libreriaEgg.errores.ErrorServicio;
 import com.libreria.libreriaEgg.repositorios.RepositorioLibro;
 import java.util.List;
@@ -17,8 +17,8 @@ public class ServicioLibro {
     private RepositorioLibro repositorioLibro;
 
     @Transactional(propagation = Propagation.NESTED)
-    public void guardar(Long isbn, String titulo, Integer anio, Integer ejemplares) throws ErrorServicio {
-        validar(isbn, titulo, anio, ejemplares, 0);
+    public void guardar(Long isbn, String titulo, Integer anio, Integer ejemplares, Autor autor, Editorial editorial) throws ErrorServicio {
+        validar(isbn, titulo, anio, ejemplares, 0, autor, editorial);
         Libro libro = new Libro();
         libro.setIsbn(isbn);
         libro.setTitulo(titulo);
@@ -27,12 +27,14 @@ public class ServicioLibro {
         libro.setEjemplaresRestantes(ejemplares);
         libro.setEjemplaresPrestados(0);
         libro.setAlta(Boolean.TRUE);
+        libro.setAutor(autor);
+        libro.setEditorial(editorial);
         repositorioLibro.save(libro);
     }
 
     @Transactional(propagation = Propagation.NESTED)
-    public void modificar(String id, Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados) throws ErrorServicio {
-        validar(isbn, titulo, anio, ejemplares, ejemplaresPrestados);
+    public void modificar(String id, Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados, Autor autor, Editorial editorial) throws ErrorServicio {
+        validar(isbn, titulo, anio, ejemplares, ejemplaresPrestados, autor, editorial);
         Optional<Libro> respuesta = repositorioLibro.findById(id);
 
         if (respuesta.isPresent()) {
@@ -47,6 +49,18 @@ public class ServicioLibro {
             throw new ErrorServicio("El libro no existe");
         }
 
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    public void borrar(String id) throws ErrorServicio {
+        Optional<Libro> respuesta = repositorioLibro.findById(id);
+
+        if (respuesta.isPresent()) {
+            Libro libro = respuesta.get();
+            repositorioLibro.delete(libro);
+        } else {
+            throw new ErrorServicio("El libro no existe.");
+        }
     }
 
     @Transactional(propagation = Propagation.NESTED)
@@ -75,29 +89,52 @@ public class ServicioLibro {
         }
     }
 
-    /// No lleva @Transactional
-    public void validar(Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados) throws ErrorServicio {
-        if (isbn == null || isbn.toString().length() != 8) {
-            throw new ErrorServicio("El número de isbn no es válido");
+    /// No lleva @Transactional porque no se relaciona con la DB
+    public void validar(Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados, Autor autor, Editorial editorial) throws ErrorServicio {
+
+        if (isbn == null) {
+            throw new ErrorServicio("El campo de ISBN no puede estar vacío");
+        }
+//         || ejemplares == null || autor == null || editorial == null
+        if (anio == null) {
+            throw new ErrorServicio("El campo de año no puede estar vacío");
         }
 
         if (titulo == null || titulo.trim().isEmpty()) {
-            throw new ErrorServicio("El titulo no puede estar vacio");
+            throw new ErrorServicio("El campo del título no puede estar vacío");
+        }
+        
+        if (ejemplares == null) {
+            throw new ErrorServicio("El campo de los ejemplares no puede estar vacío");
         }
 
-        if (anio == null || anio.toString().length() > 4) {
+        if (autor == null) {
+            throw new ErrorServicio("El campo de autor no puede estar vacío");
+        }
+
+        if (editorial == null) {
+            throw new ErrorServicio("El campo de editorial no puede estar vacío");
+        }
+        
+        if (isbn.toString().length() != 8) {
+            throw new ErrorServicio("El número de isbn no es válido");
+        }
+
+        if (anio.toString().length() > 4) {
             throw new ErrorServicio("El año no puede sobrepasar los 4 digitos");
         }
-
-        if (ejemplares == null) {
-            throw new ErrorServicio("La cantidad de ejemplares no es valida");
-        }
-
+        
         if (ejemplares < ejemplaresPrestados) {
             throw new ErrorServicio("La cantidad de ejemplares no puede ser menor que los prestados");
         }
     }
 
+    @Transactional(readOnly = true)
+    public Libro buscarPorId(String id) {
+        Optional<Libro> respuesta = repositorioLibro.findById(id);
+        return respuesta.get();
+    }
+    
     @Transactional(readOnly = true)
     public List<Libro> mostrarTodos() {
         return repositorioLibro.findAll();

@@ -6,9 +6,11 @@ import com.libreria.libreriaEgg.repositorios.RepositorioEditorial;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class ServicioEditorial {
 
     @Autowired
@@ -33,6 +35,18 @@ public class ServicioEditorial {
             repositorioEditorial.save(editorial);
         } else {
             throw new ErrorServicio("No se encontro el autor solicitado.");
+        }
+    }
+
+    @Transactional(propagation = Propagation.NESTED)
+    public void borrar(String id) throws ErrorServicio {
+        Optional<Editorial> respuesta = repositorioEditorial.findById(id);
+
+        if (respuesta.isPresent()) {
+            Editorial editorial = respuesta.get();
+            repositorioEditorial.delete(editorial);
+        } else {
+            throw new ErrorServicio("La editorial no existe.");
         }
     }
 
@@ -68,10 +82,21 @@ public class ServicioEditorial {
             throw new ErrorServicio("El nombre no puede estar vacio.");
         }
     }
+    
+    public Editorial buscarPorId(String id) {
+        Optional<Editorial> respuesta = repositorioEditorial.findById(id);
+        Editorial editorial = respuesta.get();
+        return editorial;
+    }
 
     @Transactional(readOnly = true)
     public List<Editorial> mostrarTodos() {
         return repositorioEditorial.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Editorial> mostrarTodosAlta() {
+        return repositorioEditorial.buscarPorAlta(Boolean.TRUE);
     }
 
     @Transactional(readOnly = true)

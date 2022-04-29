@@ -39,6 +39,18 @@ public class ServicioAutor {
     }
 
     @Transactional(propagation = Propagation.NESTED)
+    public void borrar(String id) throws ErrorServicio {
+        Optional<Autor> respuesta = repositorioAutor.findById(id);
+
+        if (respuesta.isPresent()) {
+            Autor autor = respuesta.get();
+            repositorioAutor.delete(autor);
+        } else {
+            throw new ErrorServicio("El autor no existe.");
+        }
+    }
+    
+    @Transactional(propagation = Propagation.NESTED)
     public void deshabilitar(String id) throws ErrorServicio {
         Optional<Autor> respuesta = repositorioAutor.findById(id);
 
@@ -75,7 +87,18 @@ public class ServicioAutor {
     public List<Autor> mostrarTodos() {
         return repositorioAutor.findAll();
     }
+    
+    @Transactional(readOnly = true)
+    public Autor buscarPorId(String id) {
+        Optional<Autor> respuesta = repositorioAutor.findById(id);
+        return respuesta.get();
+    }
 
+    @Transactional(readOnly = true)
+    public List<Autor> mostrarTodosAlta() {
+        return repositorioAutor.buscarPorAlta(Boolean.TRUE);
+    }
+    
     @Transactional(readOnly = true)
     public List<Autor> mostrarPorNombre(String nombre) {
         return repositorioAutor.buscarPorNombre(nombre);

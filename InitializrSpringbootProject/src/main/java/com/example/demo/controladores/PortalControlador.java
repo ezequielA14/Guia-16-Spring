@@ -1,4 +1,4 @@
-package com.libreria.libreriaEgg.controladores;
+package com.example.demo.controladores;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

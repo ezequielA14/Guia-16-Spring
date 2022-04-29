@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Gestión de libros</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav th:replace="index :: navbar"></nav>
+
+    <table class="table">
+        <tr>
+            <th scope="col">ISBN</th>
+            <th scope="col">Titulo</th>
+            <th scope="col">Año</th>
+            <th scope="col">Ejemplares</th>
+            <th scope="col">Autor</th>
+            <th scope="col">Editorial</th>
+            <th scope="col">Alta</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+        </tr>
+
+        <tr th:each="libro : ${libros}" th:value="${libro.id}">
+            <td th:text="${libro.isbn}"></td>
+            <td th:text="${libro.titulo}"></td>
+            <td th:text="${libro.anio}"></td>
+            <td th:text="${libro.ejemplares}"></td>
+            <td th:text="${libro.autor.nombre}"></td>
+            <td th:text="${libro.editorial.nombre}"></td>
+            <td th:text="${libro.alta}"></td>
+            <td><a th:href="@{/libro/editar(id=__${libro.id}__)}"><button type="button" class="btn btn-warning">Editar</button></a></td>
+            <td th:if="${libro.alta} == true"><a th:href="@{/libro/baja(id=__${libro.id}__)}"><button type="button"
+                        class="btn btn-danger">Dar de baja</button></a></td>
+            <td th:if="${libro.alta} == false"><a th:href="@{/libro/alta(id=__${libro.id}__)}"><button type="button"
+                        class="btn btn-primary">Dar de alta</button></a></td>
+        </tr>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+        integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+        integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
